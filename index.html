@@ -248,6 +248,53 @@ body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px;}
 
+/* ── MOBILE ── */
+@media (max-width: 768px){
+  body{height:auto;overflow-y:auto;overflow-x:hidden;}
+
+  #toolbar{position:sticky;top:0;z-index:200;padding:6px 10px;gap:5px;}
+  #title-input{font-size:.9rem;max-width:150px;}
+  .sep{display:none;}
+
+  #tab-nav{position:sticky;top:0;z-index:190;padding:0 4px;}
+  .tab-btn{padding:8px 14px;font-size:.82rem;}
+
+  .tab-panel.active{overflow:visible;flex:none;display:block;}
+
+  /* Wippe tab: stack panel above seesaw */
+  #wippe-layout{grid-template-columns:1fr;overflow:visible;height:auto;}
+
+  #panel{border-right:none;border-bottom:1px solid var(--border);overflow:visible;height:auto;}
+  #args-panel-section{flex:none;overflow:visible;}
+  #args-panel-list{overflow:visible;height:auto;max-height:none;}
+
+  #main-area{overflow:visible;height:auto;flex:none;}
+  #seesaw-area{flex:none;height:360px;min-height:300px;padding:10px 8px 6px;}
+  .seesaw-wrapper{min-height:260px;}
+
+  /* Seesaw cards: slightly tighter on small screens */
+  .seesaw-card{font-size:.6rem;padding:4px 3px;}
+  .slot-lbl{font-size:.55rem;}
+
+  #stats-bar{flex-wrap:wrap;padding:6px 12px;gap:8px;}
+  .balance-track{min-width:60px;}
+
+  /* Argumente tab */
+  #tab-argumente{overflow:visible;flex:none;}
+  #orient-bar{padding:6px 10px;}
+  #cats-editor-section{padding:8px 10px;}
+  .cats-editor-grid{grid-template-columns:1fr;}
+  #arg-editor-wrap{overflow:visible;flex:none;padding:12px 10px;}
+  #arg-editor-grid{grid-template-columns:1fr;}
+
+  /* Legend inside seesaw */
+  #legend{font-size:.65rem;padding:5px 8px;}
+
+  /* Collab modal full-screen on mobile */
+  #collab-modal{padding:12px;}
+  .collab-box{padding:20px 16px 18px;max-width:100%;}
+}
+
 /* ── PRINT ── */
 @media print{
   @page{margin:15mm 12mm;}
