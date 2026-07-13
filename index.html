@@ -541,9 +541,9 @@ function setWeight(id,delta){
 }
 function setCategory(id,catId){const a=state.arguments.find(a=>a.id===id);if(!a)return;snapshot();a.categoryId=catId||null;render();}
 
-// ── localStorage ──
+// ── Session persistence (sessionStorage = fresh start each new visit, survives reload) ──
 let _lsTimer=null;
-function saveToLS(){clearTimeout(_lsTimer);_lsTimer=setTimeout(()=>localStorage.setItem('aw-state',JSON.stringify(state)),300);}
+function saveToLS(){clearTimeout(_lsTimer);_lsTimer=setTimeout(()=>sessionStorage.setItem('aw-state',JSON.stringify(state)),300);}
 function migrate(d){
   d.arguments.forEach(a=>{if(!a.title&&a.text){a.title=a.text;a.text='';}if(!a.text)a.text='';if(!a.example)a.example='';});
   (d.categories||[]).forEach(c=>{if(!c.description)c.description='';});
@@ -1101,7 +1101,7 @@ function toast(m){const el=document.getElementById('toast');el.textContent=m;el.
   if(hash.startsWith('#state=')){
     try{const d=JSON.parse(decodeURIComponent(escape(atob(hash.slice(7)))));if(d.arguments)state=migrate(d);}catch{}
   } else {
-    const saved=localStorage.getItem('aw-state');
+    const saved=sessionStorage.getItem('aw-state');
     if(saved){try{state=migrate(JSON.parse(saved));}catch{}}
   }
   render();
