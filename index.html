@@ -512,7 +512,6 @@ function snapshot(){
   if(undoStack.length>80)undoStack.shift();
   redoStack=[];
   updateUndoBtns();
-  broadcastStateChange();
 }
 function undo(){if(!undoStack.length)return;redoStack.push(JSON.stringify(state));state=JSON.parse(undoStack.pop());updateUndoBtns();render();}
 function redo(){if(!redoStack.length)return;undoStack.push(JSON.stringify(state));state=JSON.parse(redoStack.pop());updateUndoBtns();render();}
@@ -559,6 +558,7 @@ function render(){
   renderCatsEditor();renderArgEditor();
   updateUndoBtns();
   saveToLS();
+  broadcastIfChanged();
 }
 
 function renderCatsPanel(){
@@ -794,9 +794,12 @@ function openCollabModal(url){
 
 function closeCollabModal(){document.getElementById('collab-modal').classList.remove('open');}
 
-function broadcastStateChange(){
+let _lastBroadcast=null;
+function broadcastIfChanged(){
   if(isReceivingRemote||!peer)return;
   const payload=JSON.stringify(state);
+  if(payload===_lastBroadcast)return;
+  _lastBroadcast=payload;
   if(isHost){
     hostConns.forEach(conn=>{if(conn.open)conn.send({t:'upd',p:payload});});
   }else if(guestConn&&guestConn.open){
@@ -806,7 +809,11 @@ function broadcastStateChange(){
 
 function receiveRemote(payload){
   isReceivingRemote=true;
-  try{state=migrate(JSON.parse(payload));render();}catch{}
+  try{
+    state=migrate(JSON.parse(payload));
+    _lastBroadcast=JSON.stringify(state); // prevent echo-broadcast of received state
+    render();
+  }catch{}
   isReceivingRemote=false;
 }
 
