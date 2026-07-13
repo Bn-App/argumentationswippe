@@ -431,7 +431,7 @@ body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--
     <button class="collab-close" id="collab-close">×</button>
     <div class="collab-title">🤝 Gemeinsam arbeiten</div>
     <p class="collab-sub">Scanne den QR-Code oder teile den Link. Alle Änderungen werden live synchronisiert.</p>
-    <div id="qr-wrap"><div><canvas id="qr-canvas"></canvas></div></div>
+    <div id="qr-wrap"><div id="qr-div"></div></div>
     <div class="collab-url-row">
       <input id="collab-url-inp" readonly>
       <button class="btn primary" id="copy-link-btn">Kopieren</button>
@@ -697,11 +697,19 @@ let peer=null, isHost=false, guestConn=null;
 const hostConns=new Map();
 let currentRoomId=null;
 
+const _scriptPromises=Object.create(null);
 function loadScript(url){
-  return new Promise((res,rej)=>{
-    if(document.querySelector(`script[src="${url}"]`)){res();return;}
-    const s=document.createElement('script');s.src=url;s.onload=res;s.onerror=rej;document.head.appendChild(s);
+  if(_scriptPromises[url])return _scriptPromises[url];
+  _scriptPromises[url]=new Promise((res,rej)=>{
+    const existing=document.querySelector(`script[src="${url}"]`);
+    if(existing){
+      existing.addEventListener('load',res,{once:true});
+      existing.addEventListener('error',rej,{once:true});
+    }else{
+      const s=document.createElement('script');s.src=url;s.onload=res;s.onerror=rej;document.head.appendChild(s);
+    }
   });
+  return _scriptPromises[url];
 }
 
 async function ensurePeerJS(){
@@ -710,7 +718,7 @@ async function ensurePeerJS(){
 }
 async function ensureQR(){
   if(window.QRCode)return;
-  await loadScript('https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js');
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js');
 }
 
 function genRoomId(){return 'aw'+Math.random().toString(36).slice(2,10);}
@@ -732,8 +740,8 @@ function updateBadge(show, txt){
 function openCollabModal(url){
   document.getElementById('collab-url-inp').value=url;
   document.getElementById('collab-modal').classList.add('open');
-  const canvas=document.getElementById('qr-canvas');
-  function renderQR(){if(window.QRCode)QRCode.toCanvas(canvas,url,{width:180,margin:1,color:{dark:'#1a1a2e',light:'#ffffff'}},()=>{});}
+  const qrDiv=document.getElementById('qr-div');
+  function renderQR(){if(!window.QRCode)return;qrDiv.innerHTML='';new QRCode(qrDiv,{text:url,width:180,height:180,colorDark:'#1a1a2e',colorLight:'#ffffff'});}
   if(window.QRCode){renderQR();}else{ensureQR().then(renderQR).catch(()=>{});}
 }
 
