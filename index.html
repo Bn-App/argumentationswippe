@@ -16,6 +16,7 @@
   --neutral:#6b7280;--radius:8px;
   --beam-top:#b08040;--beam-mid:#7a5520;--beam-dark:#4a3210;
   --pivot:#6b4820;
+  --gold:#d4a017;--gold-light:#fef3c7;
 }
 [data-theme="dark"]{
   --bg:#0d0f18;--surface:#1a1d2e;--surface2:#22263a;
@@ -26,6 +27,7 @@
   --contra:#f87171;--contra-light:#450a0a;
   --beam-top:#c09050;--beam-mid:#8a6030;--beam-dark:#5a3a10;
   --pivot:#8a6030;
+  --gold:#facc15;--gold-light:#422006;
 }
 body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;font-size:14px;overflow:hidden;}
 
@@ -44,6 +46,13 @@ body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--
 #collab-badge{display:none;align-items:center;gap:5px;font-size:.74rem;font-weight:600;color:#16a34a;padding:3px 9px;border:1px solid #16a34a;border-radius:12px;background:var(--pro-light);}
 #collab-badge.visible{display:flex;}
 .badge-dot{width:7px;height:7px;border-radius:50%;background:#16a34a;animation:pulse 2s infinite;}
+#collab-badge.warn{color:#b45309;border-color:#b45309;background:#fef3c7;}
+#collab-badge.warn .badge-dot{background:#b45309;}
+/* Mitarbeiter:in (Gast) darf nur ergänzen */
+body.role-guest .host-only,
+body.role-guest .cat-del-btn,
+body.role-guest .arg-card-del-btn{display:none!important;}
+body.role-guest .side-label-inp,body.role-guest #title-input{cursor:default;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 
 /* ── Tab nav ── */
@@ -57,13 +66,13 @@ body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--
 .tab-panel.active{display:flex;flex-direction:column;}
 
 /* ── Wippe layout ── */
-#wippe-layout{display:grid;grid-template-columns:256px 1fr;flex:1;overflow:hidden;}
+#wippe-layout{display:grid;grid-template-columns:300px 1fr;flex:1;overflow:hidden;}
 
 /* ── Left panel ── */
 #panel{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
 .pane-hd{padding:9px 12px 7px;font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--text-muted);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface2);}
-#cats-section{border-bottom:1px solid var(--border);flex-shrink:0;}
-#cats-list{padding:5px 10px;}
+#cats-section,#persp-section{border-bottom:1px solid var(--border);flex-shrink:0;}
+#cats-list,#persp-list{padding:5px 10px;max-height:150px;overflow-y:auto;}
 .cat-row{display:flex;align-items:center;gap:6px;padding:3px 2px;border-radius:6px;}
 .cat-row:hover{background:var(--surface2);}
 .cat-color-btn{width:17px;height:17px;border-radius:4px;border:1.5px solid rgba(0,0,0,.18);cursor:pointer;flex-shrink:0;position:relative;}
@@ -80,6 +89,16 @@ body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--
 .arg-panel-row{display:flex;align-items:flex-start;gap:6px;padding:5px 6px;border:1px solid var(--border);border-left:3px solid var(--border);border-radius:var(--radius);margin-bottom:5px;background:var(--surface);cursor:grab;transition:background .12s;}
 .arg-panel-row:hover{background:var(--surface2);}
 .arg-panel-row.dragging{opacity:.38;}
+.arg-panel-row.on-seesaw{background:var(--accent-light);border-color:var(--accent);}
+.arg-panel-row.on-seesaw:hover{background:var(--accent-light);}
+.arg-panel-row.is-gold{box-shadow:0 0 0 2px var(--gold);}
+.arg-panel-row:not(.on-seesaw) .weight-stepper{opacity:.5;}
+#args-panel-section.drop-remove{background:var(--accent-light);box-shadow:inset 0 0 0 2px var(--accent);}
+.seesaw-toggle,.gold-btn{border:1px solid var(--border);border-radius:4px;background:var(--surface2);cursor:pointer;font-size:.8rem;width:22px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-muted);padding:0;}
+.seesaw-toggle:hover,.gold-btn:hover{border-color:var(--accent);color:var(--accent);}
+.seesaw-toggle.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.gold-btn.on{background:var(--gold);border-color:var(--gold);color:#fff;}
+.arg-panel-row2{display:flex;gap:4px;}
 .drag-handle{color:var(--text-muted);font-size:.85rem;flex-shrink:0;user-select:none;cursor:grab;padding-top:3px;}
 .arg-panel-body{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;}
 .arg-panel-row1{display:flex;align-items:center;gap:4px;}
@@ -87,7 +106,7 @@ body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--
 .arg-panel-title-inp:hover{border-color:var(--border);}
 .arg-panel-title-inp:focus{outline:none;border-color:var(--accent);background:var(--surface2);}
 .arg-panel-title-inp::placeholder{color:var(--text-muted);font-style:italic;}
-.arg-panel-cat-sel{width:100%;border:1px solid var(--border);border-radius:4px;background:var(--surface2);color:var(--text);font-size:.72rem;padding:2px 4px;cursor:pointer;min-width:0;}
+.arg-panel-cat-sel{flex:1;width:0;border:1px solid var(--border);border-radius:4px;background:var(--surface2);color:var(--text);font-size:.72rem;padding:2px 4px;cursor:pointer;min-width:0;}
 .arg-panel-cat-sel:focus{outline:none;border-color:var(--accent);}
 .arg-panel-cat-sel.has-cat{font-weight:600;}
 .weight-stepper{display:flex;align-items:center;gap:2px;flex-shrink:0;}
@@ -138,12 +157,15 @@ body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--
   width:calc(100% - 4px);padding:5px 5px;
   border-radius:6px;font-size:.66rem;font-weight:700;line-height:1.35;
   color:#fff;margin-bottom:3px;text-align:center;
-  overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
+  overflow:hidden;display:flex;flex-direction:column;gap:1px;
   word-break:break-word;flex-shrink:0;cursor:grab;
   box-shadow:0 3px 8px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.3),inset 0 -1px 0 rgba(0,0,0,.16);
   text-shadow:0 1px 3px rgba(0,0,0,.4);
   transition:filter .12s,transform .12s,box-shadow .12s;
 }
+.sc-title{overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;}
+.sc-persp{font-size:.56rem;font-weight:600;opacity:.9;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.seesaw-card.gold{outline:2.5px solid var(--gold);outline-offset:1px;box-shadow:0 0 12px 2px rgba(250,204,21,.55),0 3px 8px rgba(0,0,0,.32);}
 .seesaw-card:hover{filter:brightness(1.14);transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.3),inset 0 -1px 0 rgba(0,0,0,.16);}
 .beam-bar{
   position:absolute;bottom:0;left:0;right:0;height:18px;
@@ -193,6 +215,7 @@ body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--
 .ot-persp{text-align:center;font-weight:600;font-size:.78rem;color:var(--text);background:var(--surface2);width:90px;}
 #cats-editor-section{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;flex-shrink:0;}
 .cats-editor-hd{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+#persp-editor-section{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;flex-shrink:0;}
 .cats-editor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;}
 .cat-editor-card{border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;background:var(--surface2);display:flex;flex-direction:column;gap:6px;}
 .cat-editor-top{display:flex;align-items:center;gap:7px;}
@@ -203,6 +226,11 @@ body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--
 .cat-desc-textarea:focus{outline:2px solid var(--accent);border-color:transparent;}
 #arg-editor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px;margin-top:16px;}
 .arg-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.arg-card.on-seesaw{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 1px 4px rgba(0,0,0,.06);}
+.arg-card.is-gold{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold),0 1px 4px rgba(0,0,0,.06);}
+.arg-card-status{display:flex;align-items:center;gap:8px;font-size:.78rem;}
+.arg-card-status label{display:flex;align-items:center;gap:5px;cursor:pointer;}
+.arg-card-status .gold-btn{width:auto;padding:0 8px;font-size:.74rem;gap:4px;}
 .arg-card-stripe{height:5px;flex-shrink:0;}
 .arg-card-body{padding:13px 15px;display:flex;flex-direction:column;gap:9px;flex:1;}
 .arg-card-row1{display:flex;align-items:flex-start;gap:8px;}
@@ -282,7 +310,7 @@ body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--
   /* Argumente tab */
   #tab-argumente{overflow:visible;flex:none;}
   #orient-bar{padding:6px 10px;}
-  #cats-editor-section{padding:8px 10px;}
+  #cats-editor-section,#persp-editor-section{padding:8px 10px;}
   .cats-editor-grid{grid-template-columns:1fr;}
   #arg-editor-wrap{overflow:visible;flex:none;padding:12px 10px;}
   #arg-editor-grid{grid-template-columns:1fr;}
@@ -316,6 +344,10 @@ body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--
 .pp-slots{display:flex;width:100%;align-items:flex-end;}
 .pp-slot{flex:1;display:flex;flex-direction:column-reverse;align-items:center;padding:0 1.5px 11px;min-height:60mm;position:relative;}
 .pp-card{width:calc(100% - 3px);padding:3px;border-radius:4px;font-size:7pt;font-weight:700;line-height:1.3;color:#fff;margin-bottom:2px;text-align:center;word-break:break-word;}
+.pp-card.gold{outline:2px solid #d4a017;outline-offset:1px;}
+.pp-card-persp{display:block;font-size:5.5pt;font-weight:600;text-transform:uppercase;opacity:.9;}
+.pp-arg-persp{font-size:8pt;padding:1px 6px;border-radius:10px;border:1px solid #999;color:#444;white-space:nowrap;}
+.pp-arg-gold{font-size:8pt;padding:1px 6px;border-radius:10px;background:#fef3c7;border:1px solid #d4a017;color:#8a6500;font-weight:700;white-space:nowrap;}
 .pp-slot-lbl{position:absolute;bottom:-5mm;font-size:7pt;font-weight:800;color:#888;}
 .pp-slot[data-side="pro"] .pp-slot-lbl{color:#15803d;}
 .pp-slot[data-side="contra"] .pp-slot-lbl{color:#b91c1c;}
@@ -351,17 +383,17 @@ body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--
 <header id="toolbar">
   <input type="text" id="title-input" value="Argumentationswippe" title="Titel bearbeiten">
   <div class="sep"></div>
-  <button class="btn icon" id="btn-undo" title="Rückgängig (Strg+Z)" disabled>↩</button>
-  <button class="btn icon" id="btn-redo" title="Wiederholen (Strg+Y)" disabled>↪</button>
-  <div class="sep"></div>
+  <button class="btn icon host-only" id="btn-undo" title="Rückgängig (Strg+Z)" disabled>↩</button>
+  <button class="btn icon host-only" id="btn-redo" title="Wiederholen (Strg+Y)" disabled>↪</button>
+  <div class="sep host-only"></div>
   <button class="btn" id="btn-save">💾 Speichern</button>
-  <label class="btn" style="cursor:pointer;">📂 Laden<input type="file" id="file-input" accept=".json" style="display:none;"></label>
+  <label class="btn host-only" style="cursor:pointer;">📂 Laden<input type="file" id="file-input" accept=".json" style="display:none;"></label>
   <div class="sep"></div>
   <button class="btn primary" id="btn-collab">🤝 Gemeinsam arbeiten</button>
   <div id="collab-badge"><div class="badge-dot"></div><span id="badge-txt">0 verbunden</span></div>
   <div class="sep"></div>
   <button class="btn" id="btn-pdf">🖨 Als PDF</button>
-  <button class="btn" id="btn-clear">🗑 Leeren</button>
+  <button class="btn host-only" id="btn-clear">🗑 Leeren</button>
   <div class="sep"></div>
   <button class="btn icon" id="btn-dark">🌙</button>
 </header>
@@ -377,6 +409,10 @@ body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--
       <div id="cats-section">
         <div class="pane-hd">Kategorien <span id="cats-count"></span></div>
         <div id="cats-list"></div>
+      </div>
+      <div id="persp-section">
+        <div class="pane-hd">Perspektiven <span id="persp-count"></span></div>
+        <div id="persp-list"></div>
       </div>
       <div id="args-panel-section">
         <div class="pane-hd">Argumente <span id="args-count"></span></div>
@@ -400,7 +436,7 @@ body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--
             <div class="pivot-base"></div>
           </div>
           <div id="legend"></div>
-          <div id="empty-hint">Klicke <strong>+</strong> um ein Argument hinzuzufügen<br><span style="font-size:.75rem">Ziehe Argumente auf die Gewichtsposition oder nutze −/+</span></div>
+          <div id="empty-hint"></div>
           <button id="fab-add" title="Argument hinzufügen">+</button>
         </div>
       </div>
@@ -410,7 +446,7 @@ body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--
         <div class="stat"><span class="stat-lbl">Pro:</span><span class="stat-val pro" id="stat-pro">0</span></div>
         <div class="sep"></div>
         <div class="stat"><span class="stat-lbl">Saldo:</span><span class="stat-val zero" id="stat-net">0</span></div>
-        <div class="stat"><span class="stat-lbl">Argumente:</span><span class="stat-val" id="stat-count">0</span></div>
+        <div class="stat"><span class="stat-lbl">Auf der Wippe:</span><span class="stat-val" id="stat-count">0</span></div>
       </div>
     </main>
   </div>
@@ -464,6 +500,16 @@ body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--
     </div>
     <div class="cats-editor-grid" id="cats-editor-grid"></div>
   </div>
+  <div id="persp-editor-section">
+    <div class="cats-editor-hd">
+      Perspektiven
+      <span style="display:flex;gap:6px;">
+        <button class="btn" style="font-size:.75rem;" data-action="add-default-persp">Akteure · Adressaten · System</button>
+        <button class="btn" style="font-size:.75rem;" data-action="add-persp">+ Perspektive hinzufügen</button>
+      </span>
+    </div>
+    <div class="cats-editor-grid" id="persp-editor-grid"></div>
+  </div>
   <div id="arg-editor-wrap">
     <div style="display:flex;justify-content:center;">
       <button class="arg-editor-add-btn" data-action="editor-add-arg">+ Argument hinzufügen</button>
@@ -477,9 +523,9 @@ body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--
   <div class="collab-box">
     <button class="collab-close" id="collab-close">×</button>
     <div class="collab-title">🤝 Gemeinsam arbeiten</div>
-    <p class="collab-sub">Scanne den QR-Code oder teile den Link. Alle Änderungen werden live synchronisiert.</p>
-    <div id="qr-wrap"><div id="qr-div"></div></div>
-    <div class="collab-url-row">
+    <p class="collab-sub" id="collab-sub"></p>
+    <div id="qr-wrap" class="host-only"><div id="qr-div"></div></div>
+    <div class="collab-url-row host-only">
       <input id="collab-url-inp" readonly>
       <button class="btn primary" id="copy-link-btn">Kopieren</button>
     </div>
@@ -503,9 +549,14 @@ function uid(){return Math.random().toString(36).slice(2,9);}
 const COLORS=['#e74c3c','#e67e22','#e8b400','#27ae60','#16a085','#2980b9','#8e44ad','#e91e63','#00acc1','#7cb342','#f4511e','#546e7a'];
 let colorIdx=0;
 
-let state={title:'Argumentationswippe',proLabel:'Pro',contraLabel:'Contra',categories:[],arguments:[]};
+const DEFAULT_PERSPECTIVES=['Akteure','Adressaten','System'];
+
+let state={title:'Argumentationswippe',proLabel:'Pro',contraLabel:'Contra',categories:[],perspectives:[],arguments:[]};
+
+// Effective weight on the seesaw: 0 if not placed, doubled for the Goldargument
+function effWeight(a){return a.onSeesaw?a.weight*(a.gold?2:1):0;}
+function seesawArgs(){return state.arguments.filter(a=>a.onSeesaw);}
 let undoStack=[],redoStack=[];
-let isReceivingRemote=false;
 
 // ── Undo/Redo ──
 function snapshot(){
@@ -514,25 +565,52 @@ function snapshot(){
   redoStack=[];
   updateUndoBtns();
 }
-function undo(){if(!undoStack.length)return;redoStack.push(JSON.stringify(state));state=JSON.parse(undoStack.pop());updateUndoBtns();render();}
-function redo(){if(!redoStack.length)return;undoStack.push(JSON.stringify(state));state=JSON.parse(redoStack.pop());updateUndoBtns();render();}
+function undo(){if(guestBlocked()||!undoStack.length)return;redoStack.push(JSON.stringify(state));state=JSON.parse(undoStack.pop());updateUndoBtns();render();}
+function redo(){if(guestBlocked()||!redoStack.length)return;undoStack.push(JSON.stringify(state));state=JSON.parse(redoStack.pop());updateUndoBtns();render();}
 function updateUndoBtns(){document.getElementById('btn-undo').disabled=!undoStack.length;document.getElementById('btn-redo').disabled=!redoStack.length;}
 
 // ── Categories ──
 function addCategory(){snapshot();state.categories.push({id:uid(),name:'Kategorie '+(state.categories.length+1),color:COLORS[colorIdx++%COLORS.length],description:''});render();}
-function deleteCategory(id){snapshot();state.categories=state.categories.filter(c=>c.id!==id);state.arguments.forEach(a=>{if(a.categoryId===id)a.categoryId=null;});render();}
+function deleteCategory(id){if(guestBlocked())return;snapshot();state.categories=state.categories.filter(c=>c.id!==id);state.arguments.forEach(a=>{if(a.categoryId===id)a.categoryId=null;});render();}
 function updateCatName(id,v){const c=state.categories.find(c=>c.id===id);if(c&&c.name!==v){snapshot();c.name=v;render();}}
 function updateCatColor(id,v){const c=state.categories.find(c=>c.id===id);if(c){snapshot();c.color=v;render();}}
-function updateCatDesc(id,v){const c=state.categories.find(c=>c.id===id);if(c)c.description=v;}
+function updateCatDesc(id,v){const c=state.categories.find(c=>c.id===id);if(c){c.description=v;queueSync();}}
 function commitCatDesc(id,v){const c=state.categories.find(c=>c.id===id);if(c&&c.description!==v){snapshot();c.description=v;}}
+
+// ── Perspectives ──
+function addPerspective(){snapshot();state.perspectives.push({id:uid(),name:'Perspektive '+(state.perspectives.length+1),description:''});render();}
+function addDefaultPerspectives(){
+  const missing=DEFAULT_PERSPECTIVES.filter(n=>!state.perspectives.some(p=>p.name===n));
+  if(!missing.length)return;
+  snapshot();missing.forEach(n=>state.perspectives.push({id:uid(),name:n,description:''}));render();
+}
+function deletePerspective(id){if(guestBlocked())return;snapshot();state.perspectives=state.perspectives.filter(p=>p.id!==id);state.arguments.forEach(a=>{if(a.perspectiveId===id)a.perspectiveId=null;});render();}
+function updatePerspName(id,v){const p=state.perspectives.find(p=>p.id===id);if(p&&p.name!==v){snapshot();p.name=v;render();}}
+function updatePerspDesc(id,v){const p=state.perspectives.find(p=>p.id===id);if(p){p.description=v;queueSync();}}
+function commitPerspDesc(id,v){const p=state.perspectives.find(p=>p.id===id);if(p&&p.description!==v){snapshot();p.description=v;}}
 
 // ── Arguments ──
 function addArgument(){
-  snapshot();state.arguments.push({id:uid(),title:'',text:'',example:'',weight:1,categoryId:null});render();
-  setTimeout(()=>{const ins=document.querySelectorAll('.arg-card-title-inp');if(ins.length){ins[ins.length-1].focus();ins[ins.length-1].scrollIntoView({block:'nearest'});}},40);
+  const id=uid();
+  snapshot();state.arguments.push({id,title:'',text:'',example:'',weight:1,categoryId:null,perspectiveId:null,onSeesaw:false,gold:false});render();
+  setTimeout(()=>{const inp=document.querySelector(`.tab-panel.active input[data-id="${id}"]`);if(inp){inp.focus();inp.scrollIntoView({block:'nearest'});}},40);
 }
-function deleteArgument(id){snapshot();state.arguments=state.arguments.filter(a=>a.id!==id);render();}
-function updateArgField(id,f,v){const a=state.arguments.find(a=>a.id===id);if(a)a[f]=v;}
+function setPerspective(id,pid){const a=state.arguments.find(a=>a.id===id);if(!a)return;snapshot();a.perspectiveId=pid||null;render();}
+function toggleSeesaw(id){const a=state.arguments.find(a=>a.id===id);if(!a)return;snapshot();a.onSeesaw=!a.onSeesaw;if(!a.onSeesaw)a.gold=false;render();}
+function placeOnSeesaw(id,w){
+  const a=state.arguments.find(a=>a.id===id);if(!a)return;
+  const nw=Math.max(-5,Math.min(5,w));
+  if(a.onSeesaw&&a.weight===nw)return;
+  snapshot();a.onSeesaw=true;a.weight=nw;render();
+}
+function removeFromSeesaw(id){const a=state.arguments.find(a=>a.id===id);if(!a||!a.onSeesaw)return;snapshot();a.onSeesaw=false;a.gold=false;render();}
+// Only one Goldargument at a time
+function toggleGold(id){
+  const a=state.arguments.find(a=>a.id===id);if(!a||!a.onSeesaw)return;
+  snapshot();const make=!a.gold;state.arguments.forEach(x=>x.gold=false);a.gold=make;render();
+}
+function deleteArgument(id){if(guestBlocked())return;snapshot();state.arguments=state.arguments.filter(a=>a.id!==id);render();}
+function updateArgField(id,f,v){const a=state.arguments.find(a=>a.id===id);if(a){a[f]=v;queueSync();}}
 function commitArgField(id,f,v){const a=state.arguments.find(a=>a.id===id);if(a&&a[f]!==v){snapshot();a[f]=v;render();}}
 function setWeight(id,delta){
   const a=state.arguments.find(a=>a.id===id);if(!a)return;
@@ -545,21 +623,54 @@ function setCategory(id,catId){const a=state.arguments.find(a=>a.id===id);if(!a)
 let _lsTimer=null;
 function saveToLS(){clearTimeout(_lsTimer);_lsTimer=setTimeout(()=>sessionStorage.setItem('aw-state',JSON.stringify(state)),300);}
 function migrate(d){
-  d.arguments.forEach(a=>{if(!a.title&&a.text){a.title=a.text;a.text='';}if(!a.text)a.text='';if(!a.example)a.example='';});
-  (d.categories||[]).forEach(c=>{if(!c.description)c.description='';});
+  d.arguments.forEach(a=>{
+    if(!a.title&&a.text){a.title=a.text;a.text='';}if(!a.text)a.text='';if(!a.example)a.example='';
+    if(a.onSeesaw===undefined)a.onSeesaw=true; // older files: everything was on the seesaw
+    if(!a.perspectiveId)a.perspectiveId=null;
+    a.gold=!!(a.gold&&a.onSeesaw);
+  });
+  if(!d.categories)d.categories=[];
+  d.categories.forEach(c=>{if(!c.description)c.description='';});
+  if(!d.perspectives)d.perspectives=[];
+  d.perspectives.forEach(p=>{if(!p.description)p.description='';});
   return d;
 }
 
 // ── Render ──
+// Re-rendering replaces the lists' HTML. Remote updates can arrive while someone is typing,
+// so the focused field (value, cursor) is restored afterwards and focus/blur handlers are muted meanwhile.
+let _rendering=false;
+function captureFocus(){
+  const el=document.activeElement;
+  if(!el||!el.dataset||!el.dataset.action||!el.dataset.id)return null;
+  const box=el.parentElement&&el.parentElement.closest('[id]');
+  return box?{box:box.id,action:el.dataset.action,id:el.dataset.id,v:el.value,s:el.selectionStart,e:el.selectionEnd}:null;
+}
+function restoreFocus(f){
+  if(!f)return;
+  const root=document.getElementById(f.box);if(!root)return;
+  const el=root.querySelector(`[data-action="${f.action}"][data-id="${f.id}"]`);
+  if(!el||el===document.activeElement)return;
+  if(typeof f.v==='string'&&el.value!==f.v&&el.type!=='checkbox'&&el.tagName!=='SELECT')el.value=f.v;
+  el.focus({preventScroll:true});
+  try{if(f.s!=null)el.setSelectionRange(f.s,f.e);}catch{}
+}
+['focus','blur'].forEach(t=>document.addEventListener(t,e=>{if(_rendering)e.stopImmediatePropagation();},true));
+
 function render(){
-  const ti=document.getElementById('title-input');if(document.activeElement!==ti)ti.value=state.title;
-  const pi=document.getElementById('pro-label-inp');if(document.activeElement!==pi)pi.value=state.proLabel;
-  const ci=document.getElementById('contra-label-inp');if(document.activeElement!==ci)ci.value=state.contraLabel;
-  renderCatsPanel();renderWippePanel();renderSeesaw();renderStats();
-  renderCatsEditor();renderArgEditor();
+  const f=captureFocus();
+  _rendering=true;
+  try{
+    const ti=document.getElementById('title-input');if(document.activeElement!==ti)ti.value=state.title;
+    const pi=document.getElementById('pro-label-inp');if(document.activeElement!==pi)pi.value=state.proLabel;
+    const ci=document.getElementById('contra-label-inp');if(document.activeElement!==ci)ci.value=state.contraLabel;
+    renderCatsPanel();renderPerspPanel();renderWippePanel();renderSeesaw();renderStats();
+    renderCatsEditor();renderPerspEditor();renderArgEditor();
+    restoreFocus(f);
+  }finally{_rendering=false;}
   updateUndoBtns();
   saveToLS();
-  broadcastIfChanged();
+  flushSync();
 }
 
 function renderCatsPanel(){
@@ -570,6 +681,42 @@ function renderCatsPanel(){
   h+=`<button class="cats-add-btn" data-action="add-cat">+ Kategorie hinzufügen</button>`;
   document.getElementById('cats-list').innerHTML=h;
   document.getElementById('cats-count').textContent=state.categories.length||'';
+}
+
+function renderPerspPanel(){
+  let h='';
+  state.perspectives.forEach(p=>{
+    h+=`<div class="cat-row"><input class="cat-name-inp" value="${esc(p.name)}" placeholder="Name…" data-action="persp-name" data-id="${p.id}"><button class="cat-del-btn" data-action="delete-persp" data-id="${p.id}">×</button></div>`;
+  });
+  if(!state.perspectives.length)h+=`<button class="cats-add-btn" data-action="add-default-persp">Akteure · Adressaten · System übernehmen</button>`;
+  h+=`<button class="cats-add-btn" data-action="add-persp">+ Perspektive hinzufügen</button>`;
+  document.getElementById('persp-list').innerHTML=h;
+  document.getElementById('persp-count').textContent=state.perspectives.length||'';
+}
+
+function renderPerspEditor(){
+  let h='';
+  state.perspectives.forEach(p=>{
+    h+=`<div class="cat-editor-card" style="border-left:3px solid var(--border-strong)">
+      <div class="cat-editor-top">
+        <input class="cat-editor-name-inp" value="${esc(p.name)}" placeholder="Name…" data-action="persp-name" data-id="${p.id}">
+        <button class="cat-del-btn" data-action="delete-persp" data-id="${p.id}">×</button>
+      </div>
+      <textarea class="cat-desc-textarea" placeholder="Beschreibung der Perspektive (optional)…" data-action="persp-desc" data-id="${p.id}">${esc(p.description||'')}</textarea>
+    </div>`;
+  });
+  document.getElementById('persp-editor-grid').innerHTML=h;
+}
+
+function catSelectOpts(a,emptyLbl){
+  let o=`<option value="">${emptyLbl}</option>`;
+  state.categories.forEach(c=>{o+=`<option value="${c.id}"${c.id===a.categoryId?' selected':''}>${esc(c.name)}</option>`;});
+  return o;
+}
+function perspSelectOpts(a,emptyLbl){
+  let o=`<option value="">${emptyLbl}</option>`;
+  state.perspectives.forEach(p=>{o+=`<option value="${p.id}"${p.id===a.perspectiveId?' selected':''}>${esc(p.name)}</option>`;});
+  return o;
 }
 
 function renderCatsEditor(){
@@ -594,59 +741,76 @@ function renderWippePanel(){
     const color=cat?cat.color:'#94a3b8';
     const wClass=a.weight>0?'pos':a.weight<0?'neg':'zero';
     const wLbl=(a.weight>0?'+':'')+a.weight;
-    let catOpts=`<option value="">— Kategorie —</option>`;
-    state.categories.forEach(c=>{catOpts+=`<option value="${c.id}"${c.id===a.categoryId?' selected':''}>${esc(c.name)}</option>`;});
     const catSel=state.categories.length
-      ?`<select class="arg-panel-cat-sel${cat?' has-cat':''}" data-action="panel-arg-cat" data-id="${a.id}" style="${cat?`border-left:3px solid ${color};padding-left:5px`:''}">${catOpts}</select>`
+      ?`<select class="arg-panel-cat-sel${cat?' has-cat':''}" data-action="panel-arg-cat" data-id="${a.id}" style="${cat?`border-left:3px solid ${color};padding-left:5px`:''}">${catSelectOpts(a,'— Kategorie —')}</select>`
       :'';
-    h+=`<div class="arg-panel-row" draggable="true" data-id="${a.id}" style="border-left-color:${color}"><span class="drag-handle">⠿</span><div class="arg-panel-body"><div class="arg-panel-row1"><input class="arg-panel-title-inp" value="${esc(a.title)}" placeholder="Kurzüberschrift…" data-action="panel-arg-title" data-id="${a.id}"><div class="weight-stepper"><button class="wstep-btn" data-action="weight-dec" data-id="${a.id}">−</button><span class="wstep-val ${wClass}">${wLbl}</span><button class="wstep-btn" data-action="weight-inc" data-id="${a.id}">+</button></div></div>${catSel}</div></div>`;
+    const perspSel=state.perspectives.length
+      ?`<select class="arg-panel-cat-sel${a.perspectiveId?' has-cat':''}" data-action="panel-arg-persp" data-id="${a.id}">${perspSelectOpts(a,'— Perspektive —')}</select>`
+      :'';
+    const row2=(catSel||perspSel)?`<div class="arg-panel-row2">${catSel}${perspSel}</div>`:'';
+    const toggle=`<button class="seesaw-toggle${a.onSeesaw?' on':''}" data-action="toggle-seesaw" data-id="${a.id}" title="${a.onSeesaw?'Von der Wippe nehmen':'Auf die Wippe legen'}">⚖</button>`;
+    const goldBtn=a.onSeesaw?`<button class="gold-btn${a.gold?' on':''}" data-action="toggle-gold" data-id="${a.id}" title="${a.gold?'Goldargument aufheben':'Als Goldargument markieren (zählt doppelt)'}">★</button>`:'';
+    const cls='arg-panel-row'+(a.onSeesaw?' on-seesaw':'')+(a.gold?' is-gold':'');
+    h+=`<div class="${cls}" draggable="true" data-id="${a.id}" style="border-left-color:${color}"><span class="drag-handle">⠿</span><div class="arg-panel-body"><div class="arg-panel-row1">${toggle}<input class="arg-panel-title-inp" value="${esc(a.title)}" placeholder="Kurzüberschrift…" data-action="panel-arg-title" data-id="${a.id}">${goldBtn}<div class="weight-stepper"><button class="wstep-btn" data-action="weight-dec" data-id="${a.id}">−</button><span class="wstep-val ${wClass}">${wLbl}</span><button class="wstep-btn" data-action="weight-inc" data-id="${a.id}">+</button></div></div>${row2}</div></div>`;
   });
   h+=`<button class="args-panel-add-btn" data-action="add-arg">+ Argument hinzufügen</button>`;
   document.getElementById('args-panel-list').innerHTML=h;
-  document.getElementById('args-count').textContent=state.arguments.length||'';
+  const cnt=document.getElementById('args-count');
+  cnt.textContent=state.arguments.length?seesawArgs().length+'/'+state.arguments.length+' auf der Wippe':'';
 }
 
 function renderSeesaw(){
   const ws=[-5,-4,-3,-2,-1,0,1,2,3,4,5];
   const by={};ws.forEach(w=>by[w]=[]);
-  state.arguments.forEach(a=>by[Math.max(-5,Math.min(5,a.weight))].push(a));
+  seesawArgs().forEach(a=>by[Math.max(-5,Math.min(5,a.weight))].push(a));
   let h='';
   ws.forEach(w=>{
     const side=w>0?'pro':w<0?'contra':'';
     let cards='';
     by[w].forEach(a=>{
       const cat=state.categories.find(c=>c.id===a.categoryId);
+      const persp=state.perspectives.find(p=>p.id===a.perspectiveId);
       const color=cat?cat.color:'#94a3b8';
-      cards+=`<div class="seesaw-card" style="background:${color}" draggable="true" data-id="${a.id}" title="${esc(a.title)}">${esc(a.title||'…')}</div>`;
+      const tip=(a.title||'')+(persp?' · Perspektive: '+persp.name:'')+(a.gold?' · Goldargument (zählt doppelt)':'')+' — Doppelklick: Goldargument, zurück in die Liste ziehen: von der Wippe nehmen';
+      cards+=`<div class="seesaw-card${a.gold?' gold':''}" style="background:${color}" draggable="true" data-id="${a.id}" title="${esc(tip)}"><span class="sc-title">${a.gold?'★ ':''}${esc(a.title||'…')}</span>${persp?`<span class="sc-persp">${esc(persp.name)}</span>`:''}</div>`;
     });
     const lbl=w>0?'+'+w:String(w);
     h+=`<div class="slot"${side?` data-side="${side}"`:''} data-w="${w}">${cards}<div class="slot-lbl">${lbl}</div></div>`;
   });
   document.getElementById('slots-row').innerHTML=h;
-  const net=state.arguments.reduce((s,a)=>s+a.weight,0);
+  const net=state.arguments.reduce((s,a)=>s+effWeight(a),0);
   document.getElementById('beam-wrap').style.transform=`rotate(${Math.max(-28,Math.min(28,net*2.2))}deg)`;
-  document.getElementById('empty-hint').classList.toggle('hidden',state.arguments.length>0);
+  const hint=document.getElementById('empty-hint');
+  hint.classList.toggle('hidden',seesawArgs().length>0);
+  hint.innerHTML=state.arguments.length
+    ?`Noch kein Argument auf der Wippe<br><span style="font-size:.75rem">Klicke links auf <strong>⚖</strong> oder ziehe ein Argument auf eine Gewichtsposition</span>`
+    :`Klicke <strong>+</strong> um ein Argument zu formulieren<br><span style="font-size:.75rem">Es erscheint zuerst links in der Liste</span>`;
   renderLegend();
 }
 
 function renderLegend(){
   const legend=document.getElementById('legend');
-  const used=new Set(state.arguments.map(a=>a.categoryId).filter(Boolean));
+  const used=new Set(seesawArgs().map(a=>a.categoryId).filter(Boolean));
   const show=state.categories.filter(c=>used.has(c.id));
   if(show.length<2){legend.style.display='none';return;}
   legend.style.display='block';
   legend.innerHTML=show.map(c=>`<div class="legend-row"><div class="legend-dot" style="background:${c.color}"></div><span>${esc(c.name)}</span></div>`).join('');
 }
 
+function seesawSums(){
+  const ew=state.arguments.map(effWeight);
+  const proSum=ew.filter(w=>w>0).reduce((s,w)=>s+w,0);
+  const contraSum=ew.filter(w=>w<0).reduce((s,w)=>s-w,0);
+  return {proSum,contraSum,net:proSum-contraSum};
+}
+
 function renderStats(){
-  const proSum=state.arguments.filter(a=>a.weight>0).reduce((s,a)=>s+a.weight,0);
-  const contraSum=state.arguments.filter(a=>a.weight<0).reduce((s,a)=>s+Math.abs(a.weight),0);
-  const net=proSum-contraSum,total=proSum+contraSum;
+  const {proSum,contraSum,net}=seesawSums();const total=proSum+contraSum;
   document.getElementById('stat-pro').textContent=proSum;
   document.getElementById('stat-contra').textContent=contraSum;
   const ne=document.getElementById('stat-net');
   ne.textContent=(net>0?'+':'')+net;ne.className='stat-val '+(net>0?'pro':net<0?'contra':'zero');
-  document.getElementById('stat-count').textContent=state.arguments.length;
+  document.getElementById('stat-count').textContent=seesawArgs().length+' / '+state.arguments.length;
   const pf=total>0?(proSum/total)*50:0,cf=total>0?(contraSum/total)*50:0;
   document.getElementById('bal-pro').style.width=pf+'%';
   document.getElementById('bal-contra').style.width=cf+'%';
@@ -659,17 +823,22 @@ function renderArgEditor(){
     const color=cat?cat.color:'#94a3b8';
     const wClass=a.weight>0?'pos':a.weight<0?'neg':'zero';
     const wLbl=(a.weight>0?'+':'')+a.weight;
-    let opts=`<option value="">— Keine Kategorie —</option>`;
-    state.categories.forEach(c=>{opts+=`<option value="${c.id}"${c.id===a.categoryId?' selected':''}>${esc(c.name)}</option>`;});
-    h+=`<div class="arg-card">
+    const perspSel=state.perspectives.length?`<select class="arg-cat-sel" data-action="editor-arg-persp" data-id="${a.id}">${perspSelectOpts(a,'— Keine Perspektive —')}</select>`:'';
+    const goldBtn=a.onSeesaw?`<button class="gold-btn${a.gold?' on':''}" data-action="toggle-gold" data-id="${a.id}" title="Goldargument zählt doppelt">★ ${a.gold?'Goldargument':'Als Goldargument'}</button>`:'';
+    h+=`<div class="arg-card${a.onSeesaw?' on-seesaw':''}${a.gold?' is-gold':''}">
       <div class="arg-card-stripe" style="background:${color}"></div>
       <div class="arg-card-body">
         <div class="arg-card-row1">
           <input class="arg-card-title-inp" value="${esc(a.title)}" placeholder="Kurzüberschrift…" data-action="arg-title" data-id="${a.id}">
           <button class="arg-card-del-btn" data-action="editor-delete-arg" data-id="${a.id}">×</button>
         </div>
+        <div class="arg-card-status">
+          <label><input type="checkbox" data-action="editor-toggle-seesaw" data-id="${a.id}"${a.onSeesaw?' checked':''}> Auf der Wippe</label>
+          ${goldBtn}
+        </div>
         <div class="arg-card-meta">
-          <select class="arg-cat-sel" data-action="editor-arg-cat" data-id="${a.id}">${opts}</select>
+          <select class="arg-cat-sel" data-action="editor-arg-cat" data-id="${a.id}">${catSelectOpts(a,'— Keine Kategorie —')}</select>
+          ${perspSel}
           <div class="arg-weight-badge ${wClass}"><div style="display:flex;align-items:center;gap:2px;"><button class="wstep-sm" data-action="editor-weight-dec" data-id="${a.id}">−</button><span style="min-width:22px;text-align:center">${wLbl}</span><button class="wstep-sm" data-action="editor-weight-inc" data-id="${a.id}">+</button></div></div>
         </div>
         <div><div class="field-lbl">Argument</div><textarea class="arg-textarea" rows="3" placeholder="Ausformuliertes Argument…" data-action="arg-text" data-id="${a.id}">${esc(a.text)}</textarea></div>
@@ -682,13 +851,12 @@ function renderArgEditor(){
 
 // ── PDF Export ──
 function exportPDF(){
-  const net=state.arguments.reduce((s,a)=>s+a.weight,0);
-  const proSum=state.arguments.filter(a=>a.weight>0).reduce((s,a)=>s+a.weight,0);
-  const contraSum=state.arguments.filter(a=>a.weight<0).reduce((s,a)=>s+Math.abs(a.weight),0);
+  const {proSum,contraSum,net}=seesawSums();
+  const onArgs=seesawArgs(),offArgs=state.arguments.filter(a=>!a.onSeesaw);
   const tilt=Math.max(-28,Math.min(28,net*2.2));
   const ws=[-5,-4,-3,-2,-1,0,1,2,3,4,5];
   const by={};ws.forEach(w=>by[w]=[]);
-  state.arguments.forEach(a=>by[Math.max(-5,Math.min(5,a.weight))].push(a));
+  onArgs.forEach(a=>by[Math.max(-5,Math.min(5,a.weight))].push(a));
   let slots='';
   ws.forEach(w=>{
     const side=w>0?'pro':w<0?'contra':'';
@@ -696,11 +864,12 @@ function exportPDF(){
     let cards='';
     by[w].forEach(a=>{
       const cat=state.categories.find(c=>c.id===a.categoryId);
-      cards+=`<div class="pp-card" style="background:${cat?cat.color:'#94a3b8'}">${esc(a.title||'…')}</div>`;
+      const persp=state.perspectives.find(p=>p.id===a.perspectiveId);
+      cards+=`<div class="pp-card${a.gold?' gold':''}" style="background:${cat?cat.color:'#94a3b8'}">${a.gold?'★ ':''}${esc(a.title||'…')}${persp?`<span class="pp-card-persp">${esc(persp.name)}</span>`:''}</div>`;
     });
     slots+=`<div class="pp-slot"${side?` data-side="${side}"`:''} data-w="${w}">${cards}<div class="pp-slot-lbl">${lbl}</div></div>`;
   });
-  const usedCats=new Set(state.arguments.map(a=>a.categoryId).filter(Boolean));
+  const usedCats=new Set(onArgs.map(a=>a.categoryId).filter(Boolean));
   const legendCats=state.categories.filter(c=>usedCats.has(c.id));
   const legendHtml=legendCats.length>1?`<div class="pp-legend">${legendCats.map(c=>`<div class="pp-legend-item"><div class="pp-legend-dot" style="background:${c.color}"></div><span>${esc(c.name)}</span></div>`).join('')}</div>`:'';
   const page1=`<div class="print-page pp-seesaw">
@@ -714,7 +883,7 @@ function exportPDF(){
     </div>
     <div class="pp-stats">
       <span>Contra: <strong>${contraSum}</strong></span><span>Pro: <strong>${proSum}</strong></span>
-      <span>Saldo: <strong>${(net>0?'+':'')+net}</strong></span><span>Argumente: <strong>${state.arguments.length}</strong></span>
+      <span>Saldo: <strong>${(net>0?'+':'')+net}</strong></span><span>Auf der Wippe: <strong>${onArgs.length} / ${state.arguments.length}</strong></span>
     </div>${legendHtml}</div>`;
   let catSection='';
   if(state.categories.length){
@@ -723,182 +892,401 @@ function exportPDF(){
       catSection+=`<div class="pp-cat-block" style="border-left-color:${c.color}"><div class="pp-cat-name" style="color:${c.color}">${esc(c.name)}</div>${c.description?`<div class="pp-cat-desc">${esc(c.description)}</div>`:'<div class="pp-cat-desc" style="color:#aaa;font-style:italic">Keine Beschreibung</div>'}</div>`;
     });
   }
-  let argSection=`<div class="pp-section-hd">Argumente (nach Gewichtung)</div>`;
-  [...state.arguments].sort((a,b)=>b.weight-a.weight).forEach(a=>{
+  if(state.perspectives.length){
+    catSection+=`<div class="pp-section-hd">Perspektiven</div>`;
+    state.perspectives.forEach(p=>{
+      catSection+=`<div class="pp-cat-block"><div class="pp-cat-name">${esc(p.name)}</div>${p.description?`<div class="pp-cat-desc">${esc(p.description)}</div>`:'<div class="pp-cat-desc" style="color:#aaa;font-style:italic">Keine Beschreibung</div>'}</div>`;
+    });
+  }
+  const argBlock=a=>{
     const cat=state.categories.find(c=>c.id===a.categoryId);
+    const persp=state.perspectives.find(p=>p.id===a.perspectiveId);
     const color=cat?cat.color:'#94a3b8';
     const wClass=a.weight>0?'pos':a.weight<0?'neg':'zero';
     const wLbl=(a.weight>0?'+':'')+a.weight;
-    argSection+=`<div class="pp-arg-block" style="border-left-color:${color}">
-      <div class="pp-arg-headline"><span class="pp-arg-title">${esc(a.title||'(kein Titel)')}</span><span class="pp-arg-weight ${wClass}">${wLbl}</span>${cat?`<span class="pp-arg-cat" style="background:${color}">${esc(cat.name)}</span>`:''}</div>
+    return `<div class="pp-arg-block" style="border-left-color:${color}">
+      <div class="pp-arg-headline"><span class="pp-arg-title">${esc(a.title||'(kein Titel)')}</span>${a.onSeesaw?`<span class="pp-arg-weight ${wClass}">${wLbl}</span>`:''}${a.gold?'<span class="pp-arg-gold">★ Goldargument ×2</span>':''}${cat?`<span class="pp-arg-cat" style="background:${color}">${esc(cat.name)}</span>`:''}${persp?`<span class="pp-arg-persp">${esc(persp.name)}</span>`:''}</div>
       ${a.text?`<div class="pp-field-lbl">Argument</div><div class="pp-field-val">${esc(a.text)}</div>`:''}
       ${a.example?`<div class="pp-field-lbl">Beispiel</div><div class="pp-field-val">${esc(a.example)}</div>`:''}
     </div>`;
-  });
-  const page2=`<div class="print-page pp-script"><div class="pp-script-title">Argumente &amp; Kategorien — ${esc(state.title)}</div>${catSection}${argSection}</div>`;
+  };
+  let argSection=`<div class="pp-section-hd">Argumente auf der Wippe (nach Gewichtung)</div>`;
+  argSection+=onArgs.length?[...onArgs].sort((a,b)=>effWeight(b)-effWeight(a)).map(argBlock).join(''):'<div class="pp-cat-desc" style="color:#aaa;font-style:italic">Keine</div>';
+  if(offArgs.length)argSection+=`<div class="pp-section-hd">Weitere Argumente (nicht auf der Wippe)</div>`+offArgs.map(argBlock).join('');
+  const page2=`<div class="print-page pp-script"><div class="pp-script-title">Argumente, Kategorien &amp; Perspektiven — ${esc(state.title)}</div>${catSection}${argSection}</div>`;
   document.getElementById('print-root').innerHTML=page1+page2;
   window.print();
 }
 
 // ── Collaboration ──
-let peer=null, isHost=false, guestConn=null;
-const hostConns=new Map();
-let currentRoomId=null;
+// Host ⇄ genau eine weitere Person (Mitarbeiter:in) über PeerJS/WebRTC.
+// Der Host ist maßgeblich: Mitarbeiter:innen dürfen ergänzen und bearbeiten; Löschen, Laden,
+// Leeren, Undo und Titel/Seitenbeschriftungen sind dem Host vorbehalten (UI + Prüfung beim Host).
+// Änderungen laufen als feldgenaue Ops, berechnet gegen `synced` (Stand, den beide Seiten kennen).
+// Bei jedem (Wieder-)Verbinden schickt der Host den vollen Stand; der Gast spielt Ungesendetes nach.
+const HEARTBEAT_MS=4000,PEER_TIMEOUT_MS=15000,CONNECT_TIMEOUT_MS=10000;
+const SYNC_COLS=['arguments','categories','perspectives'];
+const META_FIELDS=['title','proLabel','contraLabel'];
+let peer=null,isHost=false,currentRoomId=null,roomClosed=false;
+let guest=null;                                   // Host-Seite: {conn,cid,lastSeen}
+let guestConn=null,lastSeen=0,connStarted=0;      // Gast-Seite
+let reconnectTimer=null,reconnectDelay=1000,everConnected=false,guestIssue='';
+let synced=null,outbox=[],outSeq=0,hashMiss=0,isReceivingRemote=false;
+let restoreTries=0,_syncTimer=null;
 
+function isGuest(){return !!currentRoomId&&!isHost;}
+function guestBlocked(){if(isGuest()){toast('Nur der Host kann das');return true;}return false;}
+function clientId(){
+  let id=null;try{id=sessionStorage.getItem('aw-cid');}catch{}
+  if(!id){id=uid()+uid();try{sessionStorage.setItem('aw-cid',id);}catch{}}
+  return id;
+}
+
+// ── Sync: field-level ops ──
+function clone(o){return JSON.parse(JSON.stringify(o));}
+function diffOps(cur,base){
+  const ops=[];
+  const meta={};META_FIELDS.forEach(f=>{if(cur[f]!==base[f])meta[f]=cur[f];});
+  if(Object.keys(meta).length)ops.push({k:'meta',f:meta});
+  SYNC_COLS.forEach(col=>{
+    const bm=new Map((base[col]||[]).map(x=>[x.id,x])),seen=new Set();
+    (cur[col]||[]).forEach(x=>{
+      seen.add(x.id);
+      const b=bm.get(x.id);
+      if(!b){ops.push({k:'add',c:col,v:clone(x)});return;}
+      const f={};
+      Object.keys(x).forEach(key=>{if(JSON.stringify(x[key])!==JSON.stringify(b[key]))f[key]=x[key];});
+      if(Object.keys(f).length)ops.push({k:'set',c:col,id:x.id,f:clone(f)});
+    });
+    (base[col]||[]).forEach(x=>{if(!seen.has(x.id))ops.push({k:'del',c:col,id:x.id});});
+  });
+  return ops;
+}
+// Ops are idempotent, so re-sending after a reconnect is harmless
+function applyOps(target,ops){
+  ops.forEach(op=>{
+    if(op.k==='meta'){Object.assign(target,op.f);return;}
+    const arr=target[op.c];if(!arr)return;
+    if(op.k==='add'){const i=arr.findIndex(x=>x.id===op.v.id);if(i>=0)arr[i]=clone(op.v);else arr.push(clone(op.v));}
+    else if(op.k==='set'){const x=arr.find(x=>x.id===op.id);if(x)Object.assign(x,clone(op.f));}
+    else if(op.k==='del'){target[op.c]=arr.filter(x=>x.id!==op.id);}
+  });
+}
+// Remote changes are folded into the host's undo history, so undo only reverts the host's own actions
+function applyOpsToHistory(ops){
+  if(!ops.length)return;
+  const tf=s=>{try{const o=JSON.parse(s);applyOps(o,ops);return JSON.stringify(o);}catch{return s;}};
+  undoStack=undoStack.map(tf);redoStack=redoStack.map(tf);
+}
+function enforceSingleGold(ops){
+  let goldId=null;
+  ops.forEach(op=>{
+    if(op.c!=='arguments')return;
+    if(op.k==='set'&&op.f.gold===true)goldId=op.id;
+    if(op.k==='add'&&op.v.gold)goldId=op.v.id;
+  });
+  state.arguments.forEach(a=>{if((goldId&&a.id!==goldId)||!a.onSeesaw)a.gold=false;});
+}
+function stableStr(v){
+  if(Array.isArray(v))return '['+v.map(stableStr).join(',')+']';
+  if(v&&typeof v==='object')return '{'+Object.keys(v).filter(k=>v[k]!==undefined).sort().map(k=>JSON.stringify(k)+':'+stableStr(v[k])).join(',')+'}';
+  return JSON.stringify(v===undefined?null:v);
+}
+function stateHash(s){
+  const o={};META_FIELDS.forEach(f=>o[f]=s[f]);
+  SYNC_COLS.forEach(c=>o[c]=[...(s[c]||[])].sort((a,b)=>a.id<b.id?-1:a.id>b.id?1:0));
+  const str=stableStr(o);let h=0;
+  for(let i=0;i<str.length;i++)h=(h*31+str.charCodeAt(i))|0;
+  return h;
+}
+
+function activeConn(){return isHost?(guest&&guest.conn):guestConn;}
+function send(msg){const c=activeConn();if(!c||!c.open)return false;try{c.send(msg);return true;}catch{return false;}}
+
+function flushSync(){
+  clearTimeout(_syncTimer);
+  if(isReceivingRemote||!synced||!currentRoomId)return;
+  const ops=diffOps(state,synced);if(!ops.length)return;
+  if(isGuest()){
+    // Guest ops stay in the outbox until the host acks them
+    const m={t:'ops',s:++outSeq,ops};
+    outbox.push(m);applyOps(synced,ops);send(m);
+  }else if(send({t:'ops',ops})){
+    applyOps(synced,ops);
+  }
+}
+// Debounced sync while typing
+function queueSync(){clearTimeout(_syncTimer);_syncTimer=setTimeout(flushSync,500);}
+function renderRemote(){isReceivingRemote=true;try{render();}finally{isReceivingRemote=false;}}
+
+// ── Host ──
+function sendFull(){synced=clone(state);send({t:'full',p:JSON.stringify(state)});}
+
+function onHostMessage(d){
+  if(d.t==='ops'&&synced){
+    const allowed=d.ops.filter(op=>op.k!=='del'&&op.k!=='meta');
+    applyOps(synced,d.ops); // what the guest now believes — rejected ops get corrected by the next diff
+    applyOps(state,allowed);applyOpsToHistory(allowed);
+    enforceSingleGold(allowed);
+    send({t:'ack',s:d.s});
+    renderRemote();flushSync();
+  }else if(d.t==='ping')send({t:'pong'});
+  else if(d.t==='need-full')sendFull();
+}
+
+function onHostConnection(conn){
+  conn.on('open',()=>{
+    const cid=conn.metadata&&conn.metadata.cid;
+    const busy=guest&&guest.cid!==cid&&guest.conn.open&&Date.now()-guest.lastSeen<PEER_TIMEOUT_MS;
+    if(busy){
+      try{conn.send({t:'room-full'});}catch{}
+      setTimeout(()=>{try{conn.close();}catch{}},800);
+      return;
+    }
+    // Same person reconnecting (or the old connection is dead): replace it
+    const old=guest&&guest.conn;
+    guest={conn,cid,lastSeen:Date.now()};
+    if(old&&old!==conn){try{old.close();}catch{}}
+    sendFull();updateCollabUI();
+  });
+  conn.on('data',d=>{if(!guest||guest.conn!==conn)return;guest.lastSeen=Date.now();onHostMessage(d);});
+  const gone=()=>{if(guest&&guest.conn===conn){guest=null;updateCollabUI();}};
+  conn.on('close',gone);conn.on('error',gone);
+}
+
+async function hostRoom(id,restoring){
+  isHost=true;roomClosed=false;currentRoomId=id;
+  try{sessionStorage.setItem('aw-host-room',id);}catch{}
+  updateCollabUI();
+  try{await ensurePeerJS();}catch{setCollabStatus('err','Verbindungsbibliothek konnte nicht geladen werden – neuer Versuch…');setTimeout(()=>{if(isHost&&currentRoomId===id&&!peer)hostRoom(id,restoring);},5000);return;}
+  if(!isHost||currentRoomId!==id)return;
+  const p=new Peer(id,{debug:0});peer=p;
+  p.on('open',()=>{if(peer!==p)return;restoreTries=0;updateCollabUI();});
+  p.on('connection',conn=>{if(peer===p)onHostConnection(conn);});
+  p.on('disconnected',()=>{if(peer===p)updateCollabUI();});
+  p.on('error',err=>{
+    if(peer!==p)return;
+    if(err.type==='unavailable-id'){
+      peer=null;try{p.destroy();}catch{}
+      if(restoring&&restoreTries++<20){
+        // After a reload the old ID is still held by the server for a moment — keep trying it
+        setCollabStatus('','Stelle Raum wieder her…');
+        setTimeout(()=>{if(isHost&&currentRoomId===id&&!peer)hostRoom(id,true);},3000);
+      }else{
+        if(restoring)toast('Alter Raum nicht mehr verfügbar – neuer Raum erstellt');
+        hostRoom(genRoomId(),false);
+      }
+    }else updateCollabUI();
+  });
+}
+
+// ── Guest ──
+function onGuestMessage(d){
+  lastSeen=Date.now();
+  if(d.t==='full'){
+    let full;try{full=migrate(JSON.parse(d.p));}catch{return;}
+    // Re-apply everything we changed that the host may not have (guests never delete)
+    const unsent=synced?[...outbox.flatMap(m=>m.ops),...diffOps(state,synced)].filter(op=>op.k!=='del'&&op.k!=='meta'):[];
+    outbox=[];hashMiss=0;
+    synced=clone(full);state=full;applyOps(state,unsent);
+    renderRemote();flushSync();
+  }else if(d.t==='ops'&&synced){
+    applyOps(synced,d.ops);applyOps(state,d.ops);renderRemote();
+  }else if(d.t==='ack'){
+    outbox=outbox.filter(m=>m.s>d.s);
+  }else if(d.t==='ping'){
+    send({t:'pong'});checkHash(d.h);
+  }else if(d.t==='room-full'){
+    endGuest('Der Raum ist bereits belegt – es kann nur eine weitere Person mitarbeiten.');
+  }else if(d.t==='bye'){
+    endGuest('Der Host hat den Raum beendet. Deine Ansicht bleibt als lokale Kopie erhalten.');
+  }
+}
+// Safety net: if both sides are idle but disagree, fetch the full state again
+function checkHash(h){
+  if(h===undefined||!synced||outbox.length||diffOps(state,synced).length){hashMiss=0;return;}
+  if(stateHash(synced)===h){hashMiss=0;return;}
+  if(++hashMiss>=2){hashMiss=0;send({t:'need-full'});}
+}
+
+async function joinRoom(id){
+  currentRoomId=id;isHost=false;roomClosed=false;
+  updateCollabUI();
+  try{await ensurePeerJS();}catch{guestIssue='Verbindungsbibliothek konnte nicht geladen werden';scheduleGuestReconnect();return;}
+  if(!isGuest()||currentRoomId!==id)return;
+  createGuestPeer();
+}
+function createGuestPeer(){
+  if(peer){try{peer.destroy();}catch{}}
+  const p=new Peer({debug:0});peer=p;
+  p.on('open',()=>{if(peer===p)guestConnect();});
+  p.on('error',err=>{
+    if(peer!==p)return;
+    guestIssue=err.type==='peer-unavailable'?'Warte auf den Host…':'';
+    scheduleGuestReconnect();
+  });
+}
+function guestConnect(){
+  if(!isGuest()||roomClosed)return;
+  if(!window.Peer){joinRoom(currentRoomId);return;}
+  if(!peer||peer.destroyed){createGuestPeer();return;}
+  if(peer.disconnected){try{peer.reconnect();}catch{createGuestPeer();}return;} // 'open' fires again → guestConnect
+  if(!peer.open)return;
+  if(guestConn){const old=guestConn;guestConn=null;try{old.close();}catch{}}
+  const c=peer.connect(currentRoomId,{reliable:true,metadata:{cid:clientId()}});
+  guestConn=c;connStarted=Date.now();
+  c.on('open',()=>{
+    if(guestConn!==c)return;
+    reconnectDelay=1000;lastSeen=Date.now();everConnected=true;guestIssue='';
+    updateCollabUI();
+  });
+  c.on('data',d=>{if(guestConn===c)onGuestMessage(d);});
+  const lost=()=>{if(guestConn===c)scheduleGuestReconnect();};
+  c.on('close',lost);c.on('error',lost);
+}
+function scheduleGuestReconnect(){
+  if(!isGuest()||roomClosed||reconnectTimer)return;
+  if(guestConn){const c=guestConn;guestConn=null;try{c.close();}catch{}}
+  updateCollabUI();
+  reconnectTimer=setTimeout(()=>{reconnectTimer=null;guestConnect();},reconnectDelay);
+  reconnectDelay=Math.min(reconnectDelay*1.6,10000);
+}
+function endGuest(msg){
+  roomClosed=true;
+  resetCollab();
+  toast(msg,6000);
+}
+
+// ── Heartbeat & watchdog ──
+function heartbeat(){
+  if(!currentRoomId||roomClosed)return;
+  const now=Date.now();
+  if(isHost){
+    if(peer&&peer.destroyed){peer=null;hostRoom(currentRoomId,true);return;}
+    if(peer&&peer.disconnected){try{peer.reconnect();}catch{}}
+    if(guest){
+      if(now-guest.lastSeen>PEER_TIMEOUT_MS){const c=guest.conn;guest=null;try{c.close();}catch{}updateCollabUI();}
+      else{flushSync();send({t:'ping',h:synced?stateHash(synced):undefined});}
+    }
+  }else{
+    if(reconnectTimer)return;
+    if(guestConn&&guestConn.open){
+      if(now-lastSeen>PEER_TIMEOUT_MS)scheduleGuestReconnect();
+      else send({t:'ping'});
+      if(peer&&peer.disconnected){try{peer.reconnect();}catch{}}
+    }else if(!guestConn||now-connStarted>CONNECT_TIMEOUT_MS){
+      scheduleGuestReconnect();
+    }
+  }
+}
+setInterval(heartbeat,HEARTBEAT_MS);
+function wakeUp(){
+  if(!currentRoomId||roomClosed)return;
+  if(isGuest()&&!(guestConn&&guestConn.open)){
+    clearTimeout(reconnectTimer);reconnectTimer=null;reconnectDelay=1000;guestConnect();
+  }
+  heartbeat();
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')wakeUp();});
+window.addEventListener('online',wakeUp);
+
+// ── Leave / reset ──
+function resetCollab(){
+  const p=peer;peer=null;
+  setTimeout(()=>{try{p&&p.destroy();}catch{}},300); // give a final 'bye' time to go out
+  clearTimeout(reconnectTimer);reconnectTimer=null;reconnectDelay=1000;
+  guest=null;guestConn=null;isHost=false;currentRoomId=null;
+  synced=null;outbox=[];everConnected=false;guestIssue='';
+  try{sessionStorage.removeItem('aw-host-room');}catch{}
+  history.replaceState(null,'',location.href.split('#')[0]);
+  updateCollabUI();closeCollabModal();
+}
+function leaveRoom(){
+  const wasHost=isHost;
+  if(wasHost)send({t:'bye'});
+  resetCollab();roomClosed=false;
+  toast(wasHost?'Raum beendet':'Verbindung getrennt');
+}
+
+// ── Script loading ──
 const _scriptPromises=Object.create(null);
 function loadScript(url){
   if(_scriptPromises[url])return _scriptPromises[url];
   _scriptPromises[url]=new Promise((res,rej)=>{
-    const existing=document.querySelector(`script[src="${url}"]`);
-    if(existing){
-      existing.addEventListener('load',res,{once:true});
-      existing.addEventListener('error',rej,{once:true});
-    }else{
-      const s=document.createElement('script');s.src=url;s.onload=res;s.onerror=rej;document.head.appendChild(s);
-    }
+    const s=document.createElement('script');s.src=url;s.onload=res;
+    s.onerror=()=>{s.remove();delete _scriptPromises[url];rej();};
+    document.head.appendChild(s);
   });
   return _scriptPromises[url];
 }
-
+async function loadFirst(urls){
+  for(const u of urls){try{await loadScript(u);return;}catch{}}
+  throw new Error('load failed');
+}
 async function ensurePeerJS(){
   if(window.Peer)return;
-  await loadScript('https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js');
+  await loadFirst(['https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js','https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js']);
 }
 async function ensureQR(){
   if(window.QRCode)return;
-  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js');
+  await loadFirst(['https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js','https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js']);
 }
 
 function genRoomId(){return 'aw'+Math.random().toString(36).slice(2,10);}
 function roomUrl(id){return location.href.split('#')[0]+'#room='+id;}
 
-function setCollabStatus(state, txt){
+// ── Collab UI ──
+function setCollabStatus(kind,txt){
   const dot=document.getElementById('s-dot'),stxt=document.getElementById('s-txt');
-  if(!dot)return;
-  dot.className='s-dot'+(state==='on'?' on':state==='err'?' err':'');
+  dot.className='s-dot'+(kind==='on'?' on':kind==='err'?' err':'');
   stxt.textContent=txt;
 }
-
-function updateBadge(show, txt){
-  const b=document.getElementById('collab-badge'),t=document.getElementById('badge-txt');
-  b.classList.toggle('visible',show);
-  if(txt)t.textContent=txt;
+function updateBadge(show,txt,warn){
+  const b=document.getElementById('collab-badge');
+  b.classList.toggle('visible',show);b.classList.toggle('warn',!!warn);
+  if(txt)document.getElementById('badge-txt').textContent=txt;
 }
-
-function openCollabModal(url){
-  document.getElementById('collab-url-inp').value=url;
-  document.getElementById('collab-modal').classList.add('open');
+let _qrUrl=null;
+function renderQR(url){
+  if(_qrUrl===url)return;
   const qrDiv=document.getElementById('qr-div');
-  function renderQR(){if(!window.QRCode)return;qrDiv.innerHTML='';new QRCode(qrDiv,{text:url,width:180,height:180,colorDark:'#1a1a2e',colorLight:'#ffffff'});}
-  if(window.QRCode){renderQR();}else{ensureQR().then(renderQR).catch(()=>{});}
+  const draw=()=>{if(!window.QRCode)return;qrDiv.innerHTML='';new QRCode(qrDiv,{text:url,width:180,height:180,colorDark:'#1a1a2e',colorLight:'#ffffff'});_qrUrl=url;};
+  if(window.QRCode)draw();else ensureQR().then(draw).catch(()=>{});
 }
-
+function updateCollabUI(){
+  const guestMode=isGuest();
+  document.body.classList.toggle('role-guest',guestMode);
+  ['title-input','pro-label-inp','contra-label-inp'].forEach(id=>{document.getElementById(id).readOnly=guestMode;});
+  document.getElementById('leave-room-btn').textContent=guestMode?'Verbindung trennen':'Raum beenden';
+  document.getElementById('collab-sub').textContent=guestMode
+    ?'Du arbeitest als Mitarbeiter:in mit. Du kannst Argumente, Kategorien und Perspektiven ergänzen und bearbeiten – Löschen, Laden und Leeren kann nur der Host.'
+    :'Eine weitere Person kann per QR-Code oder Link mitarbeiten. Sie kann ergänzen und bearbeiten, aber nichts löschen, laden oder leeren. Änderungen werden live synchronisiert.';
+  if(!currentRoomId){updateBadge(false);return;}
+  if(isHost){
+    const url=roomUrl(currentRoomId);
+    document.getElementById('collab-url-inp').value=url;
+    if(document.getElementById('collab-modal').classList.contains('open'))renderQR(url);
+    if(!peer||!peer.open||peer.disconnected){setCollabStatus('','Verbinde mit Server…');updateBadge(true,'Verbinde…',true);}
+    else if(guest&&guest.conn.open){setCollabStatus('on','Mitarbeiter:in verbunden');updateBadge(true,'1/1 verbunden');}
+    else{setCollabStatus('on','Raum offen – warte auf Mitarbeiter:in…');updateBadge(true,'Raum offen');}
+  }else if(guestConn&&guestConn.open){
+    setCollabStatus('on','Mit dem Host verbunden');updateBadge(true,'Verbunden');
+  }else{
+    setCollabStatus(everConnected?'err':'',guestIssue||(everConnected?'Verbindung unterbrochen – verbinde neu…':'Verbinde mit Raum…'));
+    updateBadge(true,everConnected?'Verbinde neu…':'Verbinde…',true);
+  }
+}
+function openCollabModal(){
+  document.getElementById('collab-modal').classList.add('open');
+  updateCollabUI();
+  if(isHost&&currentRoomId)renderQR(roomUrl(currentRoomId));
+}
 function closeCollabModal(){document.getElementById('collab-modal').classList.remove('open');}
 
-let _lastBroadcast=null;
-function broadcastIfChanged(){
-  if(isReceivingRemote||!peer)return;
-  const payload=JSON.stringify(state);
-  if(payload===_lastBroadcast)return;
-  _lastBroadcast=payload;
-  if(isHost){
-    hostConns.forEach(conn=>{if(conn.open)conn.send({t:'upd',p:payload});});
-  }else if(guestConn&&guestConn.open){
-    guestConn.send({t:'upd',p:payload});
-  }
-}
-
-function receiveRemote(payload){
-  isReceivingRemote=true;
-  try{
-    state=migrate(JSON.parse(payload));
-    _lastBroadcast=JSON.stringify(state); // prevent echo-broadcast of received state
-    render();
-  }catch{}
-  isReceivingRemote=false;
-}
-
-function setupHostConn(conn){
-  conn.on('open',()=>{
-    hostConns.set(conn.peer,conn);
-    conn.send({t:'full',p:JSON.stringify(state)});
-    const n=hostConns.size;
-    setCollabStatus('on',n+' Gerät'+(n===1?'':'e')+' verbunden');
-    updateBadge(true,n+' verbunden');
-  });
-  conn.on('data',data=>{
-    if(data.t==='upd'){
-      receiveRemote(data.p);
-      // relay to all other guests
-      hostConns.forEach((c,pid)=>{if(pid!==conn.peer&&c.open)c.send({t:'upd',p:data.p});});
-    }
-  });
-  conn.on('close',()=>{
-    hostConns.delete(conn.peer);
-    const n=hostConns.size;
-    setCollabStatus('on',n===0?'Warte auf Verbindung…':n+' Gerät'+(n===1?'':'e')+' verbunden');
-    updateBadge(n>0,n+' verbunden');
-  });
-  conn.on('error',()=>hostConns.delete(conn.peer));
-}
-
-async function startRoom(){
-  await ensurePeerJS();
-  ensureQR().catch(()=>{});
-  currentRoomId=genRoomId();
-  isHost=true;
-  peer=new Peer(currentRoomId);
-  peer.on('open',id=>{
-    setCollabStatus('on','Warte auf Verbindung…');
-    openCollabModal(roomUrl(id));
-    updateBadge(true,'Raum aktiv');
-  });
-  peer.on('connection',conn=>setupHostConn(conn));
-  peer.on('error',err=>{
-    if(err.type==='unavailable-id'){peer.destroy();startRoom();}
-    else setCollabStatus('err','Fehler: '+err.type);
-  });
-}
-
-async function joinRoomAsGuest(roomId){
-  await ensurePeerJS();
-  currentRoomId=roomId;
-  isHost=false;
-  peer=new Peer();
-  peer.on('open',()=>{
-    guestConn=peer.connect(roomId,{reliable:true});
-    setCollabStatus('','Verbinde mit Raum…');
-    guestConn.on('open',()=>{
-      setCollabStatus('on','Verbunden');
-      updateBadge(true,'Raum aktiv');
-    });
-    guestConn.on('data',data=>{
-      if(data.t==='full'||data.t==='upd')receiveRemote(data.p);
-    });
-    guestConn.on('close',()=>{
-      setCollabStatus('err','Verbindung getrennt');
-      updateBadge(false,'');
-    });
-  });
-  peer.on('error',()=>setCollabStatus('err','Verbindungsfehler'));
-}
-
-function leaveRoom(){
-  if(peer){peer.destroy();peer=null;}
-  hostConns.clear();guestConn=null;isHost=false;currentRoomId=null;isReceivingRemote=false;
-  history.replaceState(null,'',location.href.split('#')[0]);
-  updateBadge(false,'');
-  closeCollabModal();
-  toast('Raum beendet');
-}
-
 // ── Collab modal events ──
-document.getElementById('btn-collab').addEventListener('click',async function(){
-  if(currentRoomId){
-    openCollabModal(roomUrl(currentRoomId));
-  }else{
-    startRoom();
-  }
+document.getElementById('btn-collab').addEventListener('click',function(){
+  if(!currentRoomId)hostRoom(genRoomId(),false);
+  openCollabModal();
 });
 document.getElementById('collab-close').addEventListener('click',closeCollabModal);
 document.getElementById('leave-room-btn').addEventListener('click',leaveRoom);
@@ -909,11 +1297,11 @@ document.getElementById('copy-link-btn').addEventListener('click',function(){
 document.getElementById('collab-modal').addEventListener('click',function(e){if(e.target===this)closeCollabModal();});
 
 // ── Drag & Drop ──
-let dragId=null;
+let dragId=null,dragFromSeesaw=false;
 document.getElementById('args-panel-list').addEventListener('dragstart',function(e){
   if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT'){e.preventDefault();return;}
   const row=e.target.closest('[data-id]');if(!row)return;
-  dragId=row.dataset.id;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',dragId);
+  dragId=row.dataset.id;dragFromSeesaw=false;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',dragId);
   setTimeout(()=>row.classList.add('dragging'),0);
 });
 document.getElementById('args-panel-list').addEventListener('dragend',function(e){
@@ -921,7 +1309,29 @@ document.getElementById('args-panel-list').addEventListener('dragend',function(e
 });
 document.getElementById('slots-row').addEventListener('dragstart',function(e){
   const card=e.target.closest('.seesaw-card[data-id]');if(!card)return;
-  dragId=card.dataset.id;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',dragId);
+  dragId=card.dataset.id;dragFromSeesaw=true;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',dragId);
+});
+document.getElementById('slots-row').addEventListener('dragend',function(){
+  dragFromSeesaw=false;dragId=null;
+  document.getElementById('args-panel-section').classList.remove('drop-remove');
+});
+document.getElementById('slots-row').addEventListener('dblclick',function(e){
+  const card=e.target.closest('.seesaw-card[data-id]');if(card)toggleGold(card.dataset.id);
+});
+// Dragging a seesaw card back into the list takes it off the seesaw
+const argsSection=document.getElementById('args-panel-section');
+argsSection.addEventListener('dragover',function(e){
+  if(!dragFromSeesaw)return;
+  e.preventDefault();e.dataTransfer.dropEffect='move';argsSection.classList.add('drop-remove');
+});
+argsSection.addEventListener('dragleave',function(e){
+  if(!e.relatedTarget||!argsSection.contains(e.relatedTarget))argsSection.classList.remove('drop-remove');
+});
+argsSection.addEventListener('drop',function(e){
+  if(!dragFromSeesaw)return;
+  e.preventDefault();argsSection.classList.remove('drop-remove');
+  const id=e.dataTransfer.getData('text/plain')||dragId;
+  if(id)removeFromSeesaw(id);dragId=null;dragFromSeesaw=false;
 });
 document.getElementById('slots-row').addEventListener('dragover',function(e){
   const slot=e.target.closest('.slot');if(!slot)return;
@@ -937,7 +1347,7 @@ document.getElementById('slots-row').addEventListener('drop',function(e){
   const slot=e.target.closest('.slot');if(!slot)return;
   e.preventDefault();document.querySelectorAll('.slot').forEach(s=>s.classList.remove('drag-over'));
   const id=e.dataTransfer.getData('text/plain')||dragId;
-  if(id)setWeight(id,parseInt(slot.dataset.w));dragId=null;
+  if(id)placeOnSeesaw(id,parseInt(slot.dataset.w));dragId=null;dragFromSeesaw=false;
 });
 
 // ── Tab switching ──
@@ -973,9 +1383,12 @@ document.getElementById('args-panel-list').addEventListener('click',function(e){
   if(el.dataset.action==='add-arg')addArgument();
   if(el.dataset.action==='weight-dec')setWeight(el.dataset.id,-1);
   if(el.dataset.action==='weight-inc')setWeight(el.dataset.id,1);
+  if(el.dataset.action==='toggle-seesaw')toggleSeesaw(el.dataset.id);
+  if(el.dataset.action==='toggle-gold')toggleGold(el.dataset.id);
 });
 document.getElementById('args-panel-list').addEventListener('change',function(e){
   if(e.target.dataset.action==='panel-arg-cat')setCategory(e.target.dataset.id,e.target.value);
+  if(e.target.dataset.action==='panel-arg-persp')setPerspective(e.target.dataset.id,e.target.value);
 });
 let _panelTitleOrig=null;
 document.getElementById('args-panel-list').addEventListener('focus',function(e){
@@ -991,6 +1404,27 @@ document.getElementById('args-panel-list').addEventListener('blur',function(e){
     _panelTitleOrig=null;render();
   }
 },true);
+
+// ── Delegation: perspectives (left panel + Argumente tab) ──
+['persp-list','persp-editor-section'].forEach(elId=>{
+  const root=document.getElementById(elId);
+  root.addEventListener('click',function(e){
+    const el=e.target.closest('[data-action]');if(!el)return;
+    if(el.dataset.action==='add-persp')addPerspective();
+    if(el.dataset.action==='add-default-persp')addDefaultPerspectives();
+    if(el.dataset.action==='delete-persp')deletePerspective(el.dataset.id);
+  });
+  root.addEventListener('input',function(e){
+    if(e.target.dataset.action==='persp-desc')updatePerspDesc(e.target.dataset.id,e.target.value);
+  });
+  root.addEventListener('blur',function(e){
+    if(e.target.dataset.action==='persp-name')updatePerspName(e.target.dataset.id,e.target.value);
+    if(e.target.dataset.action==='persp-desc')commitPerspDesc(e.target.dataset.id,e.target.value);
+  },true);
+  root.addEventListener('keydown',function(e){
+    if(e.key==='Enter'&&e.target.dataset.action==='persp-name')e.target.blur();
+  });
+});
 
 // ── Delegation: cats-editor-section ──
 document.getElementById('cats-editor-section').addEventListener('click',function(e){
@@ -1024,9 +1458,12 @@ document.getElementById('arg-editor-wrap').addEventListener('click',function(e){
   if(el.dataset.action==='editor-delete-arg')deleteArgument(el.dataset.id);
   if(el.dataset.action==='editor-weight-dec')setWeight(el.dataset.id,-1);
   if(el.dataset.action==='editor-weight-inc')setWeight(el.dataset.id,1);
+  if(el.dataset.action==='toggle-gold')toggleGold(el.dataset.id);
 });
 document.getElementById('arg-editor-wrap').addEventListener('change',function(e){
   if(e.target.dataset.action==='editor-arg-cat')setCategory(e.target.dataset.id,e.target.value);
+  if(e.target.dataset.action==='editor-arg-persp')setPerspective(e.target.dataset.id,e.target.value);
+  if(e.target.dataset.action==='editor-toggle-seesaw')toggleSeesaw(e.target.dataset.id);
 });
 document.getElementById('arg-editor-wrap').addEventListener('input',function(e){
   const el=e.target,id=el.dataset.id;if(!id)return;
@@ -1052,9 +1489,12 @@ document.getElementById('btn-pdf').addEventListener('click',exportPDF);
 document.getElementById('btn-clear').addEventListener('click',clearAll);
 document.getElementById('btn-dark').addEventListener('click',toggleDark);
 document.getElementById('file-input').addEventListener('change',function(e){if(e.target.files[0])loadFile(e.target.files[0]);e.target.value='';});
-document.getElementById('title-input').addEventListener('blur',function(e){if(state.title!==e.target.value){snapshot();state.title=e.target.value;render();}});
-document.getElementById('pro-label-inp').addEventListener('blur',function(e){if(state.proLabel!==e.target.value){snapshot();state.proLabel=e.target.value;}});
-document.getElementById('contra-label-inp').addEventListener('blur',function(e){if(state.contraLabel!==e.target.value){snapshot();state.contraLabel=e.target.value;}});
+[['title-input','title'],['pro-label-inp','proLabel'],['contra-label-inp','contraLabel']].forEach(([elId,key])=>{
+  document.getElementById(elId).addEventListener('blur',function(e){
+    if(isGuest()){e.target.value=state[key];return;}
+    if(state[key]!==e.target.value){snapshot();state[key]=e.target.value;render();}
+  });
+});
 
 // ── Keyboard ──
 document.addEventListener('keydown',function(e){
@@ -1084,6 +1524,7 @@ function saveFile(){
   toast('Datei gespeichert');
 }
 function loadFile(file){
+  if(guestBlocked())return;
   const r=new FileReader();
   r.onload=function(e){
     try{
@@ -1093,7 +1534,7 @@ function loadFile(file){
   };
   r.readAsText(file);
 }
-function clearAll(){if(!confirm('Alles löschen?'))return;snapshot();state.arguments=[];state.categories=[];render();}
+function clearAll(){if(guestBlocked()||!confirm('Alles löschen?'))return;snapshot();state.arguments=[];state.categories=[];state.perspectives=[];render();}
 
 // ── Dark mode ──
 function toggleDark(){const h=document.documentElement,d=h.dataset.theme==='dark';h.dataset.theme=d?'light':'dark';document.getElementById('btn-dark').textContent=d?'🌙':'☀️';localStorage.setItem('aw-theme',h.dataset.theme);}
@@ -1101,7 +1542,7 @@ if(localStorage.getItem('aw-theme')==='dark'){document.documentElement.dataset.t
 
 // ── Toast ──
 let _tt;
-function toast(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2400);}
+function toast(m,ms){const el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),ms||2400);}
 
 // ── Init ──
 (function(){
@@ -1113,9 +1554,13 @@ function toast(m){const el=document.getElementById('toast');el.textContent=m;el.
     if(saved){try{state=migrate(JSON.parse(saved));}catch{}}
   }
   render();
+  updateCollabUI();
   if(hash.startsWith('#room=')){
-    const roomId=hash.slice(6);
-    joinRoomAsGuest(roomId);
+    joinRoom(hash.slice(6));
+  }else{
+    // Host reloaded the page: reopen the same room so the guest's link keeps working
+    let hostRoomId=null;try{hostRoomId=sessionStorage.getItem('aw-host-room');}catch{}
+    if(hostRoomId)hostRoom(hostRoomId,true);
   }
 })();
 </script>
